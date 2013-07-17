@@ -1,0 +1,795 @@
+##
+##  authors: mourad.dachraoui@ebiznext.com, stephane.monciot@ebiznext.com
+##  This macro will render any properties and associations.
+##  $entity can be of type HibernateEntity or HibernateEmbeddedValue
+##
+#macro (renderPropertiesAndAssociations $entity $paramSqlPrefix)
+#set($hasMany = "")
+#set($belongsTo = "")
+#set($map = "")
+#set($list = "")
+#set($embedded = "")
+##http://jira.codehaus.org/browse/GRAILS-3076
+#set($enumType = "string")
+##
+## Render Identifiers
+##
+#if (!$entity.compositeIdentifier)
+#if(!$entity.getIdentifiers(true).empty)
+#set ($primaryKey = $entity.getIdentifiers(true).iterator().next())
+#set ($primaryKeyTypeName = $primaryKey.type.fullyQualifiedName)
+#if ($primaryKey.name != 'id')
+$!{indent}/**
+$primaryKey.getDocumentation("$!{indent} * ")
+$!{indent} */
+$!{indent}$primaryKeyTypeName ${primaryKey.name}
+#end
+#end
+#else
+#foreach ($identifier in $entity.identifiers)
+#set ($primaryKey = $identifier)
+#set ($primaryKeyTypeName = $identifier.type.fullyQualifiedName)
+#if ($primaryKey.name != 'id')
+$!{indent}/**
+$primaryKey.getDocumentation("$!{indent} * ")
+$!{indent} */
+$!{indent}$primaryKeyTypeName ${primaryKey.name}
+#end
+#end
+#end
+##
+## Render Entity Attribute
+## 
+#set($i = 0)
+#foreach ($attribute in $entity.attributes)
+## Initialisation de la configuration
+#set($mappingAssociationConfig= "")
+#if(!$attribute.identifier && !$attribute.transient)
+#set($fullyQualifiedPropertyType = $attribute.type.fullyQualifiedName)
+## attribut 
+#end
+#if($attribute.type.enumeration)
+## l'attribut est une enumeration
+#set($fullyQualifiedPropertyType = $attribute.type.fullyQualifiedName)
+#end
+#if($attribute.type.clobType)
+## l'attribut est un clob
+#set($fullyQualifiedPropertyType = "java.lang.String")
+##set($mappingAssociationConfigType = "text")
+#end
+## TODO FIX EMBEDDEDVALUE ISSUE
+#if($attribute.containsEmbeddedObject)
+#### L'attribut est une entité imbriquée
+#### EmbeddedValueStereotype
+$!{indent}/**
+$attribute.getDocumentation("$!{indent} * ")
+$!{indent} */
+$!{indent}$fullyQualifiedPropertyType $attribute.name
+#if($embedded  != "")#set($embedded  = "$embedded,")#end#set($embedded  = "${embedded} '$!{attribute.name}'")
+##not yet supported
+##render the embedded type
+#else
+#if($typeSafeEnumsEnabled == false)
+## Enumeration non typée <TODO NOT YET SUPPORTED/>
+#else
+#if($attribute.name != 'id')
+#if(!$attribute.identifier)
+
+$!{indent}/**
+$attribute.getDocumentation("$!{indent} * ")
+$!{indent} */
+$!{indent}$fullyQualifiedPropertyType $attribute.name #if($attribute.defaultValuePresent) = $attribute.defaultValue #end
+#end
+#end
+#end
+#end
+#end
+## Traitement des relations pour $entity.entityName
+#foreach ($sourceEnd in $entity.associationEnds)
+#set($otherEnd = $sourceEnd.otherEnd)
+## sourceEnd = $sourceEnd.name
+## otherEnd = $otherEnd.name
+## Traitement de la relation avec $otherEnd.name
+#if($otherEnd.navigable && !$otherEnd.transient)
+## La relation $otherEnd.name est navigable et non transient
+#if($sourceEnd.one2One)
+## La muyltiplicité de $sourceEnd.name est one2One
+#if($sourceEnd.one2OnePrimary || (!$sourceEnd.navigable && !$entity.foreignHibernateGeneratorClass))
+## Association one2One sur une clé primaire sourceEnd.one2OnePrimary = $sourceEnd.one2OnePrimary
+## ou 
+## L entité $sourceEnd.name n est pas navigable et l entité $entity.entityName na pas de generateur de classe hibernate
+$!{indent}/**
+$otherEnd.getDocumentation("$!{indent} * ")
+$!{indent} */
+$!{indent}$otherEnd.type.fullyQualifiedName $otherEnd.name
+#else
+#if($entity.foreignHibernateGeneratorClass)
+$!{indent}/**
+$otherEnd.getDocumentation("$!{indent} * ")
+$!{indent} */
+$!{indent}$otherEnd.type.fullyQualifiedName $otherEnd.name
+#else
+## Relation one-to-one pour $otherEnd.name
+#if($sourceEnd.navigable)
+
+
+$!{indent}static belongsTo = [$otherEnd.name:$otherEnd.type.fullyQualifiedName]
+#end
+#end
+#end
+#end
+#if($sourceEnd.one2Many)
+##Relation one  $sourceEnd.name  2 many $otherEnd.name
+#if($otherEnd.set || $otherEnd.map)
+## The many side is a set or a map
+#if($otherEnd.map)
+#if($map != "")
+#set($map = "$map , ")
+#end
+#set($map = "$map $!{otherEnd.name}")
+#end
+#if($hasMany != "")
+#set($hasMany = "$hasMany , ")
+#end
+#set($hasMany = "${hasMany} $!{otherEnd.name}:$!{otherEnd.type.fullyQualifiedName}")
+#elseif($otherEnd.bag)
+## The many side is a bag
+#if($hasMany != "")
+#set($hasMany = "$hasMany , ")
+#end
+#set($hasMany = "${hasMany} $!{otherEnd.name}:$!{otherEnd.type.fullyQualifiedName}")
+#elseif($otherEnd.list)
+## The many side is a list
+#if($list != "")#set($list = "$list , ")#end#set($list = "${list}$!{otherEnd.name}")#if($hasMany != "")#set($hasMany = "$hasMany , ")#end
+#set($hasMany = "${hasMany} $!{otherEnd.name}:$!{otherEnd.type.fullyQualifiedName}")
+#end
+## Traitement des foreign-keys
+##foreign-key="$sourceEnd.foreignKeyConstraintName"
+#elseif($sourceEnd.many2One && !$sourceEnd.identifiersPresent)
+## information concernant $otherEnd.name many-to-one 
+
+$!{indent}/**
+$otherEnd.getDocumentation("$!{indent} * ")
+$!{indent} */
+$!{indent}${otherEnd.type.fullyQualifiedName} $otherEnd.name 
+## Many 2 Many
+#elseif($sourceEnd.many2Many)
+#if($otherEnd.set || $otherEnd.map)
+## The many side is a set or a map
+##By default when you define a relationship with GORM
+##it is a java.util.Set that is injected which is an
+##unordered collection that cannot contain duplicates
+##
+## TODO SortedSet
+##
+#if($otherEnd.map)#if($map != "")#set($map = "$map , ")#end#set($map = "$map $!{otherEnd.name}")
+#end
+#if($hasMany != "")#set($hasMany = "$hasMany , ")#end#set($hasMany = "${hasMany}$!{otherEnd.name}:$!{otherEnd.type.fullyQualifiedName}")
+#elseif($otherEnd.bag)
+## The many side is a bag
+#if($hasMany != "")#set($hasMany = "$hasMany , ")#end#set($hasMany = "${hasMany}$!{otherEnd.name}:$!{otherEnd.type.fullyQualifiedName}")
+#elseif($otherEnd.list)
+## The many side is a list
+#if($list != "")#set($list = "$list , ")#end#set($list = "${list}$!{otherEnd.name}")
+#if($hasMany != "")#set($hasMany = "$hasMany , ")#end#set($hasMany = "${hasMany}$!{otherEnd.name}:$!{otherEnd.type.fullyQualifiedName}")
+#end
+#end
+#end
+#end
+##
+## Generate List block
+##
+#if($list != "")
+
+${indent}List $!{list} 
+#end
+##
+## Generate Map block
+##
+#if($map != "")
+
+${indent}Map $!{map} 
+#end
+##
+## Generate hasMany block
+##
+#if($hasMany != "")
+
+${indent}static hasMany = [ $!{hasMany} ]
+#end
+##
+## Generate belongsTo block
+##
+#if($belongsTo != "")
+
+${indent}static belongsTo = [ $!{belongsTo} ]
+#end
+##
+## Generate embedded block
+##
+#if($embedded != "")
+
+${indent}static embedded = [ $!{embedded} ]
+#end
+#end
+#macro (renderMappingBlock $entity $paramSqlPrefix)
+#set($mappingAssociationConfigCache ="false")
+## Batchsize per association 
+## not yet implemented in andromda #set($mappingBatchsize = "")
+#set($mappingCache = "")
+#set($mappingAssociationCascade = "")
+#set($mappingDiscriminatorValue = "")
+#set($mappingDiscriminatorColumn = "")
+#set($mappingDiscriminatorLength = "")
+#set($mappingTablePerHierarchy = "")
+#set($mappingDynamicInsert = "")
+#set($mappingDynamicUpdate = "")
+#set($mappingFetch = "")
+#set($mappingIdName = "")
+#set($mappingIdColumn = "")
+#set($mappingIdType = "")
+#set($mappingIdGenerator = "")
+#set($mappingIdGeneratorParamsSequence = "")
+#set($mappingIdGeneratorParamsProperty = "")
+#set($mappingIdComposite = "")
+#set($mappingIndexColumnName = "")
+#set($mappingIndexColumnType = "")
+#set($mappingInsertable = "")
+#set($mappingLazy = "")
+#set($mappingTable = "")
+#set($mappingType = "")
+#set($mappingUpdateable = "")
+#set($mappingAssociationConfigJoinTable= "")
+##set($mappingVersion = "")
+#set($mappingAssociationName = "")
+#set($mappingAssociationConfig = "")
+#set($mappingAssociationConfigColumn= "")
+#set($mappingAssociationConfigType = "")
+#set($mappingAssociationConfigIndex="")
+##
+## Generate mapping block
+##
+
+
+$!{indent}static mapping = {
+## Formula on entity not supported
+
+#if($entity.hibernateInheritanceClass)
+#if($stringUtils.isNotBlank($entity.hibernateDiscriminatorValue))
+#set($mappingDiscriminatorValue = "$!{entity.hibernateDiscriminatorValue}")
+#end
+#if(!$entity.generalization)
+#if($stringUtils.isNotBlank($entity.hibernateDiscriminatorColumn))
+#set($mappingDiscriminatorColumn = "$!{entity.hibernateDiscriminatorColumn}")
+#end
+##TODO FIX FROM MODEL
+#set($mappingDiscriminatorLength = "255")
+#set($mappingTablePerHierarchy= "true")
+#end
+#elseif ($entity.hibernateInheritanceSubclass)
+##if(!$entity.generalization)
+#set($mappingTablePerHierarchy= "false")
+##end
+#end
+
+##
+## Embedded value mapping
+##
+#if(!$entity.hibernateEmbeddedValueMetaType)
+#if($stringUtils.isNotBlank($entity.schema)) 
+#set($mappingTable = "name:'$!{entity.tableName}' schema:'$!{entity.schema}'")
+## TODO catalogf
+#else
+#set($mappingTable = "'$!{entity.tableName}'")
+#end
+#end
+#if($hibernateEnableCache.equalsIgnoreCase("true"))
+#if($entity.hibernateCacheType)
+#set($mappingCache= "usage:'$!{entity.hibernateCacheType}'")
+#else
+#set($mappingCache= "true")
+#end
+#else
+#set($mappingCache= "false")
+#if($entity.dynamicInsert)
+#set($mappingDynamicInsert= "true")
+#else
+#set($mappingDynamicInsert= "false")
+#end 
+#if($entity.dynamicUpdate)
+#set($mappingDynamicUpdate= "true")
+#else
+#set($mappingDynamicUpdate= "false")
+#end 
+#end 
+## not yet implemented in andromda 
+###if($mappingbatchSize != "")
+## Hibernate second-level cache: 
+## explicitly need to enable caching per domain class.
+#if($mappingCache != "")
+$!{indent}$!{indent}cache $mappingCache
+
+#end
+#if($mappingCascade != "")
+$!{indent}$!{indent}cascade $mappingCascade
+
+#end
+#if($mappingTablePerHierarchy != "")
+$!{indent}$!{indent}tablePerHierarchy $mappingTablePerHierarchy
+
+#end
+#set($firstDiscriminatorConfig = "true")
+#if($mappingDiscriminatorValue != "")
+$!{indent}$!{indent}discriminator #if($firstDiscriminatorConfig == "false"),#end #set($firstDiscriminatorConfig = "false")value:'$mappingDiscriminatorValue'#if($mappingDiscriminatorColumn != "")#if($firstDiscriminatorConfig == "false"),#end #set($firstDiscriminatorConfig = "false") column:[name:'$mappingDiscriminatorColumn'#if($mappingDiscriminatorLength != ""),length:$mappingDiscriminatorLength#end]#end
+
+#end
+#if($mappingDynamicInsert != "")
+$!{indent}$!{indent}dynamicInsert $mappingDynamicInsert
+
+#end
+#if($mappingDynamicUpdate != "")
+$!{indent}$!{indent}dynamicUpdate $mappingDynamicUpdate
+
+#end
+#if($mappingFetch != "")
+$!{indent}$!{indent}fetch: '$!{mappingFetch}'
+
+#end
+#if($mappingSort != "")
+$!{indent}$!{indent}sort: $mappingSort
+
+#end
+#if($mappingTable != "")
+$!{indent}$!{indent}table $mappingTable
+
+#end
+##if($mappingVersion != "")
+$!{indent}$!{indent}version $optimisticLocking
+
+##end
+## 
+## Render Identifier mapping
+## 
+#if(!$entity.hibernateEmbeddedValueMetaType)
+#if(!$entity.compositeIdentifier )
+## Identifiant de l entité est non composite
+#set($identifier = $entity.identifiers.iterator().next())
+##
+## Custom identity
+##
+#set($mappingIdName= "$!{identifier.name}")
+#set($mappingIdColumn= "$!{identifier.columnName}") 
+#set($mappingIdType= "$!{identifier.sqlType}")
+#set($mappingIdGenerator= "$!{entity.hibernateGeneratorClass}")
+#if($entity.sequenceHibernateGeneratorClass)
+#set($mappingIdGeneratorParamsSequence= "$!{entity.tableName}$!{sequenceIdentifierSuffix}")
+#elseif($entity.foreignHibernateGeneratorClass)
+#set($mappingIdGeneratorParamsProperty= "$!{entity.parentEnd.name}")
+#end
+#else
+##
+## Custom Composite Identity
+##
+#foreach ($identifier in $entity.identifiers)
+#if($mappingIdComposite!="")
+#set($mappingIdComposite="$!{mappingIdComposite} ,")
+#end
+#set($mappingIdComposite= "$!{mappingIdComposite} '$!{identifier.name}'") ## Fix issue 16537: GORM composite key
+#end
+#foreach ($sourceEnd in $entity.identifierAssociationEnds)
+#if($mappingIdComposite!="")
+#set($mappingIdComposite="$!{mappingIdComposite} ,")
+#end
+#set($mappingIdComposite= "$!{mappingIdComposite} '$!{sourceEnd.otherEnd.name}'")
+#end
+#end
+#set($firstIdConfig = "true")
+$!{indent}$!{indent}id #if($mappingIdComposite != "")#if($firstIdConfig == "false"),#end #set($firstIdConfig = "false")composite:[$mappingIdComposite]#end#if($mappingIdName != "")#if($firstIdConfig == "false"),#end #set($firstIdConfig = "false")name:'$mappingIdName'#end#if($mappingIdColumn != "")#if($firstIdConfig == "false"),#end #set($firstIdConfig = "false")column:'$mappingIdColumn'#end#if($mappingIdType != "")#if($firstIdConfig == "false"),#end #set($firstIdConfig = "false")sqlType:'$mappingIdType'#end#if($mappingIdGenerator != "")#if($firstIdConfig == "false"),#end #set($firstIdConfig = "false")generator:'$mappingIdGenerator'#if($mappingIdGeneratorParamsSequence != "")#if($firstIdConfig == "false"),#end #set($firstIdConfig = "false")params:[sequence:'$mappingIdGeneratorParamsSequence']#end#if($mappingIdGeneratorParamsProperty != "")#if($firstIdConfig == "false"),#end #set($firstIdConfig = "false")params:[property:'$mappingIdGeneratorParamsProperty']#end#end
+
+#end
+##
+## Render attributes
+##
+##
+## Render Entity Attribute
+## 
+#foreach ($attribute in $entity.attributes)
+## Initialisationde la configuration
+#if(!$attribute.identifier && !$attribute.transient)
+#set($fullyQualifiedPropertyType = $attribute.type.name)
+#end
+#if($attribute.type.enumeration)
+#set($fullyQualifiedPropertyType = $attribute.type.name)
+#end
+#if($attribute.type.clobType)
+## l'attribut est un clob
+#set($fullyQualifiedPropertyType = "java.lang.String")
+##set($mappingAssociationConfigType = "text")
+#end
+#if($typeSafeEnumsEnabled == false)
+##
+## Render attributes mapping
+##
+#set($mappingAssociationName="$!{attribute.name}")
+#if($attribute.updateEnabled)
+#set($mappingAssociationConfigUpdateable="true")
+#else
+#set($mappingAssociationConfigUpdateable="false")
+#end
+#if($attribute.insertEnabled)
+#set($mappingAssociationConfiginserteable="true")
+#else
+#set($mappingAssociationConfiginserteable="false")
+#end
+#if($attribute.sqlType)
+#set($mappingAssociationConfigSqlType="$!{attribute.sqlType}")
+#end
+#if($attribute.lazy)
+#set($mappingAssociationConfigLazy= "true")
+#else
+#set($mappingAssociationConfigLazy= "false")
+#end
+#if($attribute.columnName)
+#set($mappingAssociationConfigColumn="$!{attribute.columnName}")
+##set($mappingAssociationConfigUnique="$!{attribute.unique}")
+#set($mappingAssociationConfigSqlType="$!{attribute.sqlType}")
+#if($attribute.columnIndex)
+#set($mappingAssociationConfigIndex="$!{attribute.columnIndex}")
+#else
+#set($mappingAssociationConfigIndex="")
+#end
+#end
+#else
+#if($attribute.name != 'id')
+##
+## Render Entity Attribute mapping
+## 
+#set($mappingAssociationName = "$!{attribute.name}")
+#if($attribute.updateEnabled)
+#set($mappingAssociationConfigUpdateable="true")
+#else
+#set($mappingAssociationConfigUpdateable="false")
+#end
+#if($attribute.insertEnabled)
+#set($mappingAssociationConfigInsertable="true")
+#else
+#set($mappingAssociationConfigInsertable="false")
+#end
+#if($attribute.sqlType)
+#set($mappingAssociationConfigSqlType="$!{attribute.sqlType}")
+#end
+#if($attribute.lazy)
+#set($mappingAssociationConfigLazy= "true")
+#else
+#set($mappingAssociationConfigLazy= "false")
+#end
+#if($attribute.columnName)
+#set($mappingAssociationConfigColumn="$!{attribute.columnName}")
+##set($mappingAssociationConfigUnique="$!{attribute.unique}")
+#set($mappingAssociationConfigSqlType="$!{attribute.sqlType}")
+#if($attribute.columnIndex)
+#set($mappingAssociationConfigIndex="$!{attribute.columnIndex}")
+#else
+#set($mappingAssociationConfigIndex="")
+#end
+#end
+#end
+#end
+##
+## Render attribute mapping block
+##
+#set($firstAssociationConfig = "true")
+#if($mappingAssociationName!="" && !$entity.hibernateEmbeddedValueMetaType)
+$!{indent}$!{indent}$mappingAssociationName #if($mappingAssociationConfigColumn!= "")#if($firstAssociationConfig == "false"),#end #set($firstAssociationConfig = "false")column:"$mappingAssociationConfigColumn"#end#if($mappingAssociationConfigUnique!= "")#if($firstAssociationConfig == "false"),#end #set($firstAssociationConfig = "false")unique:"$mappingAssociationConfigUnique"#end#if($mappingAssociationConfigSqlType!= "")#if($firstAssociationConfig == "false"),#end #set($firstAssociationConfig = "false")sqlType:'$mappingAssociationConfigSqlType'#end#if($attribute.type.enumeration)#if($firstAssociationConfig == "false"),#end #set($firstAssociationConfig = "false")enumType:"$enumType"#end#if($mappingAssociationConfigIndex!= "")#if($firstAssociationConfig == "false"),#end #set($firstAssociationConfig = "false")index:"$mappingAssociationConfigIndex"#end#if($mappingAssociationCascade != "")#if($firstAssociationConfig == "false"),#end #set($firstAssociationConfig = "false")cascade :'$mappingAssociationCascade'#end#if($mappingAssociationConfigIndexColumnName != "")#if($firstAssociationConfig == "false"),#end #set($firstAssociationConfig = "false")indexColumn:[name:"$!{mappingAssociationConfig.indexColumnName}"#if($mappingAssociationConfigIndexColumnType != "")#if($firstAssociationConfig == "false"),#end #set($firstAssociationConfig = "false")type:'$mappingAssociationConfigIndexColumnType'#end]#end#if($mappingAssociationConfigInsertable!= "")#if($firstAssociationConfig == "false"),#end #set($firstAssociationConfig = "false")insertable:$mappingAssociationConfigInsertable#end#if($mappingAssociationConfigUpdateable!= "")#if($firstAssociationConfig == "false"),#end #set($firstAssociationConfig = "false")updateable:$mappingAssociationConfigUpdateable#end#if($mappingAssociationConfigLazy!= "")#if($firstAssociationConfig == "false"),#end #set($firstAssociationConfig = "false")lazy:$mappingAssociationConfigLazy#end#if($attribute.type.clobType)#if($firstAssociationConfig == "false"),#end #set($firstAssociationConfig = "false")type:"text"#end#if($mappingAssociationConfigCache!= "")#if($firstAssociationConfig == "false"),#end #set($firstAssociationConfig = "false")cache:$mappingAssociationConfigCache#end#end
+#set($mappingAssociationName= "")
+
+#end
+#foreach ($sourceEnd in $entity.associationEnds)
+#set($mappingAssociationName= "")
+#set($mappingAssociationCascade = "")
+#set($mappingAssociationConfigCache = "false")
+#set($otherEnd = $sourceEnd.otherEnd)
+#if($otherEnd.navigable && !$otherEnd.transient)
+#if(($hibernateEnableCache.equalsIgnoreCase("true")) && ($hibernateEnableAssociationsCache.equalsIgnoreCase("true")))
+## AssociationsCache is enabled
+#if($otherEnd.association.hibernateCacheType) 
+#set($mappingAssociationConfigCache = "'$!{otherEnd.association.hibernateCacheType}'")
+#else
+#set($mappingAssociationConfigCache = "true")
+#end
+#end
+#if($sourceEnd.one2One)
+#if($sourceEnd.one2OnePrimary || (!$sourceEnd.navigable && !$entity.foreignHibernateGeneratorClass))
+## Association one2One sur une clé primaire sourceEnd.one2OnePrimary = $sourceEnd.one2OnePrimary
+## ou 
+## L entité $sourceEnd.name n est pas navigable et l entité $entity.entityName na pas de generateur de classe hibernate
+#if($otherEnd.type.foreignHibernateGeneratorClass)
+## generateur de classe hibernate pour le type de $otherEnd.name
+#set($mappingAssociationName = "$!{otherEnd.name}")
+#if($otherEnd.hibernateCascade)
+#set($mappingAssociationCascade= "$!{otherEnd.hibernateCascade}")
+#end
+#if($otherEnd.lazy)
+#set($mappingAssociationConfigLazy= "true")
+#set($mappingAssociationConfigFetch= "select")
+#else
+#set($mappingAssociationConfigLazy= "false")
+#set($mappingAssociationConfigFetch= "$!{otherEnd.outerJoin}")
+#end
+#else
+## Relation Many to One pour $otherEnd.name
+#set($mappingAssociationName = "$!{otherEnd.name}")
+#if($otherEnd.hibernateCascade)
+#set($mappingAssociationCascade= "$!{otherEnd.hibernateCascade}")
+#end
+#if($otherEnd.lazy)
+#set($mappingAssociationConfigLazy= "true")
+#set($mappingAssociationConfigFetch= "select")
+#else
+#set($mappingAssociationConfigLazy= "false")
+#set($mappingAssociationConfigFetch= "$!{otherEnd.outerJoin}")
+#end
+#if($otherEnd.columnName)
+#set($mappingAssociationConfigColumn="$!{otherEnd.columnName}")
+##set($mappingAssociationConfigUnique="$!{otherEnd.unique}")
+#set($mappingAssociationConfigSqlType="$!{otherEnd.sqlType}")
+#if($otherEnd.columnIndex)
+#set($mappingAssociationConfigIndex="$!{otherEnd.columnIndex}")
+#end
+#end
+#end
+#else
+#if($entity.foreignHibernateGeneratorClass)
+## generateur de classe hibernate pour $entity.entityName
+##name="$otherEnd.name" 
+##class="$otherEnd.type.fullyQualifiedEntityImplementationName" 
+##foreign-key="$otherEnd.columnName"
+#set($mappingAssociationName = "$!{otherEnd.name}")
+#if($otherEnd.hibernateCascade)
+#set($mappingAssociationCascade= "$!{otherEnd.hibernateCascade}")
+#end
+#if($otherEnd.lazy)
+#set($mappingAssociationConfigLazy= "true")
+#set($mappingAssociationConfigFetch= "select")
+#else
+#set($mappingAssociationConfigLazy= "false")
+#set($mappingAssociationConfigFetch= "$!{otherEnd.outerJoin}")
+#end
+#if($otherEnd.columnName)
+#set($mappingAssociationConfigColumn="$!{otherEnd.columnName}")
+##set($mappingAssociationConfigUnique="$!{otherEnd.unique}")
+#set($mappingAssociationConfigSqlType="$!{otherEnd.sqlType}")
+#if($otherEnd.columnIndex)
+#set($mappingAssociationConfigIndex="$!{otherEnd.columnIndex}")
+#end
+#end
+#else
+## Relation one-to-one pour $otherEnd.name
+#set($mappingAssociationName = "$!{otherEnd.name}")
+#if($otherEnd.hibernateCascade)
+#set($mappingAssociationCascade= "$!{otherEnd.hibernateCascade}")
+#end
+#if($otherEnd.lazy)
+#set($mappingAssociationConfigLazy= "true")
+#set($mappingAssociationConfigFetch= "select")
+#else
+#set($mappingAssociationConfigLazy= "false")
+#set($mappingAssociationConfigFetch= "$!{otherEnd.outerJoin}")
+#end
+#if($otherEnd.columnName)
+#set($mappingAssociationConfigColumn="$!{otherEnd.columnName}")
+##set($mappingAssociationConfigUnique="$!{otherEnd.unique}")
+#set($mappingAssociationConfigSqlType="$!{otherEnd.sqlType}")
+#if($otherEnd.columnIndex)
+#set($mappingAssociationConfigIndex="$!{otherEnd.columnIndex}")
+#end
+#end
+#end
+#end
+#end
+
+#if($sourceEnd.one2Many)
+##Relation one  $sourceEnd.name  2 many $otherEnd.name
+#if($otherEnd.set || $otherEnd.map)
+## The many side is a set or a map
+##By default when you define a relationship with GORM
+##it is a java.util.Set that is injected which is an
+##unordered collection that cannot contain duplicates
+##
+## TODO SortedSet
+##
+#set($mappingAssociationName = "$!{otherEnd.name}")
+#if($otherEnd.hibernateCascade)
+#set($mappingAssociationCascade= "$!{otherEnd.hibernateCascade}")
+#end
+#if($otherEnd.lazy)
+#set($mappingAssociationConfigLazy= "true")
+#set($mappingAssociationConfigFetch= "select")
+#else
+#set($mappingAssociationConfigLazy= "false")
+#set($mappingAssociationConfigFetch= "$!{otherEnd.outerJoin}")
+#end
+#if($otherEnd.columnName)
+#set($mappingAssociationConfigColumn="$!{otherEnd.columnName}")
+##set($mappingAssociationConfigUnique="$!{otherEnd.unique}")
+#set($mappingAssociationConfigSqlType="$!{otherEnd.sqlType}")
+#if($otherEnd.columnIndex)
+#set($mappingAssociationConfigIndex="$!{otherEnd.columnIndex}")
+#end
+#end
+#elseif($otherEnd.bag)
+## The many side is a bag
+#set($mappingAssociationName = "$!{otherEnd.name}")
+#if($otherEnd.hibernateCascade)
+#set($mappingAssociationCascade= "$!{otherEnd.hibernateCascade}")
+#end
+#if($otherEnd.lazy)
+#set($mappingAssociationConfigLazy= "true")
+#set($mappingAssociationConfigFetch= "select")
+#else
+#set($mappingAssociationConfigLazy= "false")
+#set($mappingAssociationConfigFetch= "$!{otherEnd.outerJoin}")
+#end
+#if($otherEnd.columnName)
+#set($mappingAssociationConfigColumn="$!{otherEnd.columnName}")
+##set($mappingAssociationConfigUnique="$!{otherEnd.unique}")
+#set($mappingAssociationConfigSqlType="$!{otherEnd.sqlType}")
+#if($otherEnd.columnIndex)
+#set($mappingAssociationConfigIndex="$!{otherEnd.columnIndex}")
+#end
+#end
+#elseif($otherEnd.list)
+## The many side is a list
+#set($mappingAssociationName = "$!{otherEnd.name}")
+#if($otherEnd.hibernateCascade)
+#set($mappingAssociationCascade= "$!{otherEnd.hibernateCascade}")
+#end
+#if($otherEnd.lazy)
+#set($mappingAssociationConfigLazy= "true")
+#set($mappingAssociationConfigFetch= "select")
+#else
+#set($mappingAssociationConfigLazy= "false")
+#set($mappingAssociationConfigFetch= "$!{otherEnd.outerJoin}")
+#end
+#if($otherEnd.columnName)
+#set($mappingAssociationConfigColumn="$!{otherEnd.columnName}")
+##set($mappingAssociationConfigUnique="$!{otherEnd.unique}")
+#set($mappingAssociationConfigSqlType="$!{otherEnd.sqlType}")
+#if($otherEnd.columnIndex)
+#set($mappingAssociationConfigIndex="$!{otherEnd.columnIndex}")
+#end
+#end
+#end
+## Traitement des foreign-keys
+##foreign-key="$sourceEnd.foreignKeyConstraintName"
+#if($otherEnd.list) 
+#set($mappingAssociationConfigIndexColumnName  = "$!{otherEnd.collectionIndexName}")
+#end
+#if($otherEnd.map)
+## création de l index pour une map
+#set($mappingAssociationConfigIndexColumnName  = "$!{otherEnd.collectionIndexName}")
+#set($mappingAssociationConfigIndexColumnType  = "$!{otherEnd.collectionIndexType}")
+#end
+#elseif($sourceEnd.many2One && !$sourceEnd.identifiersPresent)
+#set($mappingAssociationName = "$!{otherEnd.name}")
+## information concernant $otherEnd.name                     many-to-one             
+#if($sourceEnd.list)
+## TODO not-null="$otherEnd.required"
+#set($mappingAssociationConfigUpdateable="false")
+#set($mappingAssociationConfigInsertable="false")
+#end 
+#if($otherEnd.hibernateCascade)
+#set($mappingAssociationCascade= "$!{otherEnd.hibernateCascade}")
+#end
+#if($otherEnd.lazy)
+#set($mappingAssociationConfigLazy= "true")
+#else
+#set($mappingAssociationConfigLazy= "false")
+#end
+#if($otherEnd.columnName)
+#set($mappingAssociationConfigColumn="$!{otherEnd.columnName}")
+##set($mappingAssociationConfigUnique="$!{otherEnd.unique}")
+#set($mappingAssociationConfigSqlType="$!{otherEnd.sqlType}")
+#if($otherEnd.columnIndex)
+#set($mappingAssociationConfigIndex="$!{otherEnd.columnIndex}")
+#end
+#end
+#if($otherEnd.lazy)
+#set($mappingAssociationConfigLazy= "true")
+#set($mappingAssociationConfigFetch= "select")
+#else
+#set($mappingAssociationConfigLazy= "false")
+#set($mappingAssociationConfigFetch= "$!{otherEnd.outerJoin}")
+#end
+## Many 2 Many
+#elseif($sourceEnd.many2Many)
+#if($otherEnd.set || $otherEnd.map)
+## The many side is a set or a map
+##By default when you define a relationship with GORM
+##it is a java.util.Set that is injected which is an
+##unordered collection that cannot contain duplicates
+##
+## TODO SortedSet
+##
+#set($mappingAssociationName = "$!{otherEnd.name}")
+#if($otherEnd.hibernateCascade)
+#set($mappingAssociationCascade= "$!{otherEnd.hibernateCascade}")
+#end
+#if($otherEnd.lazy)
+#set($mappingAssociationConfigLazy= "true")
+#set($mappingAssociationConfigFetch= "select")
+#else
+#set($mappingAssociationConfigLazy= "false")
+#set($mappingAssociationConfigFetch= "$!{otherEnd.outerJoin}")
+#end
+#if($otherEnd.columnName)
+#set($mappingAssociationConfigColumn="$!{otherEnd.columnName}")
+##set($mappingAssociationConfigUnique="$!{otherEnd.unique}")
+#set($mappingAssociationConfigSqlType="$!{otherEnd.sqlType}")
+#if($otherEnd.columnIndex)
+#set($mappingAssociationConfigIndex="$!{otherEnd.columnIndex}")
+#end
+#end
+#elseif($otherEnd.bag)
+## The many side is a bag
+#set($mappingAssociationName = "$!{otherEnd.name}")
+#if($otherEnd.hibernateCascade)
+#set($mappingAssociationCascade= "$!{otherEnd.hibernateCascade}")
+#end
+#if($otherEnd.lazy)
+#set($mappingAssociationConfigLazy= "true")
+#set($mappingAssociationConfigFetch= "select")
+#else
+#set($mappingAssociationConfigLazy= "false")
+#set($mappingAssociationConfigFetch= "$!{otherEnd.outerJoin}")
+#end
+#if($otherEnd.columnName)
+#set($mappingAssociationConfigColumn="$!{otherEnd.columnName}")
+##set($mappingAssociationConfigUnique="$!{otherEnd.unique}")
+#set($mappingAssociationConfigSqlType="$!{otherEnd.sqlType}")
+#if($otherEnd.columnIndex)
+#set($mappingAssociationConfigIndex="$!{otherEnd.columnIndex}")
+#end
+#end 
+#elseif($otherEnd.list)
+## The many side is a list
+#set($mappingAssociationName = "$!{otherEnd.name}")
+#if($otherEnd.hibernateCascade)
+#set($mappingAssociationCascade= "$!{otherEnd.hibernateCascade}")
+#end
+#if($otherEnd.lazy)
+#set($mappingAssociationConfigLazy= "true")
+#set($mappingAssociationConfigFetch= "select")
+#else
+#set($mappingAssociationConfigLazy= "false")
+#set($mappingAssociationConfigFetch= "$!{otherEnd.outerJoin}")
+#end
+#if($otherEnd.columnName)
+#set($mappingAssociationConfigColumn="$!{otherEnd.columnName}")
+##set($mappingAssociationConfigUnique="$!{otherEnd.unique}")
+#set($mappingAssociationConfigSqlType="$!{otherEnd.sqlType}")
+#if($otherEnd.columnIndex)
+#set($mappingAssociationConfigIndex="$!{otherEnd.columnIndex}")
+#end
+#end
+#*
+Join-Table Config
+*#
+#if($otherEnd.association.tableName)
+#set($mappingAssociationConfigJoinTable="$!{otherEnd.association.tableName}")
+#end
+#end
+#end
+#end
+##
+## Render association mapping block
+##
+#set($firstAssociationConfig = "true")
+#if($mappingAssociationName!="")
+$!{indent}$!{indent}$mappingAssociationName #if($mappingAssociationConfigColumn!= "")#if($firstAssociationConfig == "false"),#end #set($firstAssociationConfig = "false")column:"$mappingAssociationConfigColumn"#end#if($mappingAssociationConfigUnique!= "")#if($firstAssociationConfig == "false"),#end #set($firstAssociationConfig = "false")unique:"$mappingAssociationConfigUnique"#end#if($mappingAssociationConfigSqlType!= "")#if($firstAssociationConfig == "false"),#end #set($firstAssociationConfig = "false")sqlType:'$mappingAssociationConfigSqlType'#end#if($otherEnd.type.enumeration)#if($firstAssociationConfig == "false"),#end #set($firstAssociationConfig = "false")enumType:"$enumType"#end#if($mappingAssociationConfigIndex!= "")#if($firstAssociationConfig == "false"),#end #set($firstAssociationConfig = "false")index:"$mappingAssociationConfigIndex"#end#if($mappingAssociationCascade != "")#if($firstAssociationConfig == "false"),#end #set($firstAssociationConfig = "false")cascade :'$mappingAssociationCascade'#end#if($mappingAssociationConfigJoinTable != "")#if($firstAssociationConfig == "false"),#end #set($firstAssociationConfig = "false")cascade :'$mappingAssociationConfigJoinTable'#end#if($mappingAssociationConfigIndexColumnName != "")#if($firstAssociationConfig == "false"),#end #set($firstAssociationConfig = "false")indexColumn:[name:"$!{mappingAssociationConfig.indexColumnName}"#if($mappingAssociationConfigIndexColumnType != "")#if($firstAssociationConfig == "false"),#end #set($firstAssociationConfig = "false")type:'$mappingAssociationConfigIndexColumnType'#end]#end#if($mappingAssociationConfigInsertable!= "")#if($firstAssociationConfig == "false"),#end #set($firstAssociationConfig = "false")insertable:$mappingAssociationConfigInsertable#end#if($mappingAssociationConfigUpdateable!= "")#if($firstAssociationConfig == "false"),#end #set($firstAssociationConfig = "false")updateable:$mappingAssociationConfigUpdateable#end#if($mappingAssociationConfigLazy!= "")#if($firstAssociationConfig == "false"),#end #set($firstAssociationConfig = "false")lazy:$mappingAssociationConfigLazy#end#if($mappingAssociationConfigType!= "")#if($firstAssociationConfig == "false"),#end #set($firstAssociationConfig = "false")type:"$mappingAssociationConfigType"#end#if($mappingAssociationConfigCache!= "")#if($firstAssociationConfig == "false"),#end #set($firstAssociationConfig = "false")cache:$mappingAssociationConfigCache#end
+
+#end
+#set($mappingAssociationName= "")
+#end
+$!{indent}}
+#end
