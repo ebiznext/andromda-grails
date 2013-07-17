@@ -1,0 +1,70 @@
+<andromda>
+    <properties>
+        <property name="cartridgeFilter">grails</property>
+        <property name="failOnValidationErrors">true</property>
+    </properties>
+    <repositories>
+        <repository name="netBeansMDR">
+            <models>
+                <model>
+                    <uri>${test.model.uri}</uri>
+                    <moduleSearchLocations>
+                        <location patterns="**/*.xml.zip">${project.basedir}/profiles</location>
+                    </moduleSearchLocations>
+                </model>
+            </models>            
+        </repository>
+    </repositories>
+    <namespaces>
+        <namespace name="grails">
+            <properties>
+            	<property name="soapStack">xfire</property>
+                <property name="overwrite">true</property>
+                <property name="languageMappingsUri">Java</property>
+                <property name="wrapperMappingsUri">JavaWrapper</property>
+                <property name="enableTemplating">true</property>
+                <property name="jdbcMappingsUri">JDBC</property>
+                <property name="sqlMappingsUri">Oracle9i</property>
+                <property name="hibernateTypeMappingsUri">Hibernate</property>
+
+                <!-- outlets -->
+                <property name="enumerations">${test.output.dir}</property>
+                <property name="entities">${test.output.dir}</property>
+                <property name="entity-delegators">${test.output.dir}</property>
+                <property name="entity-tools">${test.output.dir}</property>
+                <property name="services">${test.output.dir}</property>
+                <property name="service-interfaces">${test.output.dir}</property>
+                <property name="service-impls">${test.output.dir}</property>
+                <property name="unit-tests">${test.output.dir}</property>
+                <property name="configuration">${test.output.dir}</property>                
+                <property name="controllers">${test.output.dir}</property>
+                <property name="controller-impls">${test.output.dir}</property>
+                <property name="views">${test.output.dir}</property>
+                
+                <property name="json">${test.output.dir}</property>
+
+                <property name="hibernateAggregationCascade">delete</property>
+                <property name="hibernateDefaultCascade">none</property>
+
+                <!-- transactions properties -->
+		        <property name="transactionManager">org.springframework.transaction.jta.JtaTransactionManager</property>
+		        <property name="transactionManagerName">java:/TransactionManager</property>
+		        <property name="userTransactionName">UserTransaction</property>
+
+                <!-- hibernate properties -->
+		        <property name="dataSource">java:comp/env/jdbc/DB</property>
+				<property name="username">sa</property>
+				<property name="password"></property>
+				<property name="driver">org.hsqldb.jdbcDriver</property>
+				<property name="connectionUrl">jdbc:hsqldb:mem:devDB</property>
+				<property name="hibernateDialect">org.hibernate.dialect.HSQLDialect</property>
+				<property name="hibernateShowSql">true</property>
+				<property name="hibernateEnableCache">true</property>
+                <property name="hibernateEnableAssociationsCache">true</property>
+                
+                <!-- gorm properties -->
+				<property name="optimisticLocking">true</property>
+            </properties>
+        </namespace>
+    </namespaces>
+</andromda>

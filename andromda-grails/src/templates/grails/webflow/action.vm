@@ -1,0 +1,36 @@
+##author stephane.manciot@ebiznext.com
+##
+##  MACRO getTargetedAction
+##
+#macro( getTargetedAction $__action )
+#set ($__targetedAction = $__action)
+#set ($__view = '')
+#set ($__decisionPoint = '')
+#set ($__actionState = '')
+##
+## entering view
+#if ($__action.enteringView)
+#set ($__view = $__action.target)
+#set ($__targetedAction = $__view)
+##
+## entering decision point
+#elseif ($__action.enteringDecisionPoint)
+#set ($__decisionPoint = $__action.target)
+#set ($__targetedAction = $__decisionPoint)
+##
+## entering action state
+#elseif ($__action.enteringActionState)
+#set ($__actionState = $__action.target)
+#set ($__targetedAction = $__actionState)
+##
+## entering final state
+#elseif ($__action.enteringFinalState)
+#set ($__finalState = $__action.target)
+#set ($__targetedAction = $__finalState)
+##
+## outgoing
+#elseif (!$__action.outgoing.empty)
+#set ($__outgoing = $__action.outgoing.iterator().next())
+#getTargetedAction($__outgoing)
+#end
+#end

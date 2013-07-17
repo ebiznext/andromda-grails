@@ -1,0 +1,389 @@
+<cartridge>
+
+    <templateEngine className="org.andromda.templateengines.velocity.VelocityTemplateEngine">
+        <!-- library of macros used in template engine -->
+        <macrolibrary name="templates/hibernate/hibernate.java.vm"/>
+        <macrolibrary name="templates/grails/hibernate/GrailsEntity.vm"/>
+        <!-- library of actions' macros used in template engine -->
+        <macrolibrary name="templates/grails/webflow/action.vm"/>
+        <!-- shared (meaning across subdirectories) macros -->
+        <!-- cartridge-macrolibrary merge-point-->
+    </templateEngine>
+
+    <!-- define the template objects that are made available to the template -->
+    <templateObject name="dateUtils" className="org.andromda.utils.DateUtilsHelper"/>
+    <templateObject name="stringUtils" className="org.andromda.utils.StringUtilsHelper"/>
+    <templateObject name="hibernateUtils" className="org.andromda.cartridges.hibernate.HibernateUtils">
+        <property reference="hibernateVersion"/>
+        <property reference="hibernateXMLPersistence"/>
+        <property reference="hibernateMappingStrategy"/>
+    </templateObject>
+    <templateObject name="grailsUtils" className="org.andromda.cartridges.grails.GrailsUtils"/>
+    <templateObject name="converter" className="org.andromda.utils.JavaTypeConverter">
+        <property reference="javaTypeConversionIgnoreList"/>
+    </templateObject>
+    <!-- cartridge-templateObject merge-point-->
+
+    <property reference="securityRealm"/>
+    <!-- from hibernate cartridge -->
+    <property reference="customTypesPackage"/>
+    <!-- contains the package for the Hibernate user types -->
+    <property reference="userTypesPackage"/>
+    <!-- the name to give the service locator class -->
+    <property reference="serviceLocatorName"/>
+    <property reference="sequenceIdentifierSuffix"/>
+    <property reference="driver"/>
+    <property reference="username"/>
+    <property reference="password"/>
+    <property reference="connectionUrl"/>
+    <property reference="dataSource"/>
+    <property reference="schemaName"/>
+    <property reference="hibernateDefaultCascade"/>
+    <property reference="hibernatePoolSize"/>
+    <property reference="hibernateTransactionFactoryClass"/>
+    <property reference="hibernateConnectionReleaseMode"/>
+    <property reference="hibernateTransactionManagerStrategy"/>
+    <property reference="hibernateUserTransactionName"/>
+    <property reference="hibernateTransactionManagerLookup"/>
+    <property reference="hibernateUseOuterJoin"/>
+    <property reference="hibernateShowSql"/>
+    <property reference="hibernateJndiName"/>
+    <property reference="hibernateDialect"/>
+    <property reference="hibernateMaxFetchDepth"/>
+    <property reference="hibernateJdbcFetchSize"/>
+    <property reference="hibernateJdbcBatchSize"/>
+    <property reference="hibernateJdbcUseScrollableResultSet"/>
+    <property reference="hibernateJdbcUseStreamsForBinary"/>
+    <property reference="hibernateHbm2DDLAuto"/>
+    <property reference="hibernateQuerySubstitutions"/>
+    <property reference="hibernateEnableCache"/>
+    <property reference="hibernateEnableAssociationsCache"/>
+    <property reference="hibernateEhCacheDiskStore"/>
+    <property reference="hibernateEnableDistributedCache"/>
+    <property reference="hibernateDistributedCacheMulticastAddress"/>
+    <property reference="hibernateDistributedCacheMulticastPort"/>
+    <property reference="hibernateDistributedCacheSocketTimeout"/>
+    <property reference="hibernateCacheProvider"/>
+    <property reference="hibernateQueryCacheFactory"/>
+    <property reference="xmlEncoding"/>
+    <property reference="generateEntityEqualsAndHashCode"/>
+    <property reference="hibernateProxy"/>
+    <!-- This property is only relevant for Hibernate 3 -->
+    <property reference="hibernateQueryFactory"/>
+    <property reference="toDoTag"/>
+	<property reference="typeSafeEnumsEnabled"/>
+	<!-- spring -->
+    <property reference="transactionManager"/>
+    <property reference="localTransactionManager"/>
+    <property reference="userTransactionName"/>
+    <property reference="transactionManagerName"/>
+    <!-- gorm -->
+    <property reference="optimisticLocking"/>
+    <!-- web services -->
+    <property reference="soapStack"/>
+
+    <!-- cartridge-property merge-point -->
+
+    <condition name="mapSubclassesInSeparateFile">$hibernateUtils.mapSubclassesInSeparateFile</condition>
+    <!-- condition merge-point-->
+
+    <!-- copy resources -->
+
+    <!-- cartridge-resource merge-point -->
+
+    <!-- process templates on model elements -->
+
+    <!-- gorm templates -->
+    <template
+        path="templates/grails/hibernate/GrailsEntity.vsl"
+        outputPattern="$generatedFile"
+        outlet="entities"
+        overwrite="true">
+        <modelElements variable="entity">
+            <modelElement>
+                <type name="org.andromda.cartridges.hibernate.metafacades.HibernateEntity">
+                    <property name="requiresMapping"/>
+                </type>
+            </modelElement>
+        </modelElements>
+    </template>
+    <template
+        path="templates/grails/hibernate/GrailsEntityDelegator.vsl"
+        outputPattern="$generatedFile"
+        outlet="entity-delegators"
+        overwrite="false">
+        <modelElements variable="entity">
+            <modelElement>
+                <type name="org.andromda.cartridges.hibernate.metafacades.HibernateEntity">
+                    <property name="requiresMapping"/>
+                </type>
+            </modelElement>
+        </modelElements>
+    </template>
+    
+    <template
+        path="templates/grails/hibernate/GrailsEntity.vsl"
+        outputPattern="$generatedFile"
+        outlet="entities"
+        overwrite="true">
+        <modelElements variable="entity">
+            <modelElement>
+                <type name="org.andromda.cartridges.hibernate.metafacades.HibernateEntity">
+                    <property name="requiresMapping">false</property>
+                </type>
+            </modelElement>
+        </modelElements>
+    </template>
+    <template
+        path="templates/grails/hibernate/GrailsEntityDelegator.vsl"
+        outputPattern="$generatedFile"
+        outlet="entity-delegators"
+        overwrite="false">
+        <modelElements variable="entity">
+            <modelElement>
+                <type name="org.andromda.cartridges.hibernate.metafacades.HibernateEntity">
+                    <property name="requiresMapping">false</property>
+                </type>
+            </modelElement>
+        </modelElements>
+    </template>
+
+    <template
+        path="templates/grails/java/GrailsEnumeration.vsl"
+        outputPattern="{0}/{1}.groovy"
+        outlet="enumerations"
+        overwrite="true">
+        <modelElements variable="enumeration">
+            <modelElement>
+                <type name="org.andromda.metafacades.uml.EnumerationFacade">
+                    <property name="typeSafe">false</property>
+                </type>
+            </modelElement>
+        </modelElements>
+    </template>
+    
+    <template
+        path="templates/grails/hibernate/GrailsEmbeddedValues.vsl"
+        outputPattern="$generatedFile"
+        outlet="entities"
+        overwrite="true">
+        <modelElements variable="embeddedValue">
+            <modelElement>
+                <type name="org.andromda.cartridges.hibernate.metafacades.HibernateEmbeddedValue"/>
+            </modelElement>
+        </modelElements>
+    </template>
+    
+    <template
+        path="templates/grails/hibernate/DataSource.vsl"
+        outputPattern="DataSource.groovy"
+        outlet="configuration"
+        overwrite="true"
+        outputToSingleFile="true"
+        outputOnEmptyElements="false">
+    </template>
+
+    <!-- spring templates -->
+    <template
+        path="templates/grails/spring/GrailsResources.vsl"
+        outputPattern="spring/resources.groovy"
+        outlet="configuration"
+        overwrite="true"
+        outputToSingleFile="true"
+        outputOnEmptyElements="false">
+        <modelElements>
+            <modelElement variable="services">
+                <type name="org.andromda.cartridges.grails.metafacades.GrailsService"/>
+            </modelElement>
+        </modelElements>
+    </template>
+
+    <template
+        path="templates/grails/spring/GrailsService.vsl"
+        outputPattern="$generatedFile"
+        outlet="service-interfaces"
+        overwrite="true">
+        <modelElements variable="service">
+            <modelElement>
+                <type name="org.andromda.cartridges.grails.metafacades.GrailsService"/>
+            </modelElement>
+        </modelElements>
+    </template>
+
+    <template
+        path="templates/grails/spring/GrailsServiceBase.vsl"
+        outputPattern="$generatedFile"
+        outlet="services"
+        overwrite="true">
+        <modelElements variable="service">
+            <modelElement>
+                <type name="org.andromda.cartridges.grails.metafacades.GrailsService"/>
+            </modelElement>
+        </modelElements>
+    </template>
+
+    <template
+        path="templates/grails/spring/GrailsServiceImpl.vsl"
+        outputPattern="$generatedFile"
+        outlet="service-impls"
+        overwrite="false">
+        <modelElements variable="service">
+            <modelElement>
+                <type name="org.andromda.cartridges.grails.metafacades.GrailsService"/>
+            </modelElement>
+        </modelElements>
+    </template>
+
+    <template
+        path="templates/grails/spring/DefaultServiceException.vsl"
+        outputPattern="$generatedFile"
+        outlet="service-interfaces"
+        overwrite="true">
+        <modelElements variable="service">
+            <modelElement>
+                <type name="org.andromda.cartridges.grails.metafacades.GrailsService">
+                    <property name="allowDefaultServiceException"/>
+                </type>
+            </modelElement>
+        </modelElements>
+    </template>
+
+    <!-- json templates -->
+    <template
+        path="templates/grails/json/RenderUtil.vsl"
+        outputPattern="$generatedFile"
+        outlet="json"
+        overwrite="false">
+    </template>
+
+    <!-- unit test templates -->
+    <template
+        path="templates/grails/test/unit/MockGrailsPluginManager.vsl"
+        outputPattern="$generatedFile"
+        outlet="unit-tests"
+        overwrite="true">
+    </template>
+
+    <template
+        path="templates/grails/test/unit/MockHibernateGrailsPlugin.vsl"
+        outputPattern="$generatedFile"
+        outlet="unit-tests"
+        overwrite="true">
+    </template>
+
+    <template
+        path="templates/grails/test/unit/AbstractPersistenceTestCase.vsl"
+        outputPattern="$generatedFile"
+        outlet="unit-tests"
+        outputToSingleFile="true"
+        overwrite="true">
+        <modelElements>
+            <modelElement variable="entities">
+                <type name="org.andromda.cartridges.hibernate.metafacades.HibernateEntity"/>
+            </modelElement>
+            <!-- 
+            <modelElement variable="embeddedValues">
+                <type name="org.andromda.cartridges.hibernate.metafacades.HibernateEmbeddedValue"/>
+            </modelElement>
+             -->
+        </modelElements>
+    </template>
+
+	<!-- 
+    <template
+        path="templates/grails/hibernate/GrailsValidators.vsl"
+        outputPattern="$generatedFile"
+        outlet="entity-tools"
+        outputToSingleFile="true"
+        overwrite="false">
+        <modelElements>
+            <modelElement variable="entities">
+                <type name="org.andromda.cartridges.hibernate.metafacades.HibernateEntity"/>
+            </modelElement>
+            <modelElement variable="embeddedValues">
+                <type name="org.andromda.cartridges.hibernate.metafacades.HibernateEmbeddedValue"/>
+            </modelElement>
+        </modelElements>
+    </template>
+
+    <template
+        path="templates/grails/hibernate/GrailsEntityToString.vsl"
+        outputPattern="$generatedFile"
+        outlet="entity-tools"
+        outputToSingleFile="true"
+        overwrite="false">
+        <modelElements>
+            <modelElement variable="entities">
+                <type name="org.andromda.cartridges.hibernate.metafacades.HibernateEntity"/>
+            </modelElement>
+            <modelElement variable="embeddedValues">
+                <type name="org.andromda.cartridges.hibernate.metafacades.HibernateEmbeddedValue"/>
+            </modelElement>
+        </modelElements>
+    </template>
+
+    <template
+        path="templates/grails/hibernate/GrailsEntityToValueObject.vsl"
+        outputPattern="$generatedFile"
+        outlet="entity-tools"
+        outputToSingleFile="true"
+        overwrite="false">
+        <modelElements>
+            <modelElement variable="entities">
+                <type name="org.andromda.cartridges.hibernate.metafacades.HibernateEntity"/>
+            </modelElement>
+            <modelElement variable="embeddedValues">
+                <type name="org.andromda.cartridges.hibernate.metafacades.HibernateEmbeddedValue"/>
+            </modelElement>
+        </modelElements>
+    </template>
+ -->
+
+    <!-- web flow templates -->
+    <template
+        path="templates/grails/webflow/GrailsWebFlowControllerBase.vsl"
+        outputPattern="$generatedFile"
+        outlet="controllers"
+        overwrite="true">
+        <modelElements variable="controller">
+            <modelElement>
+                <type name="org.andromda.metafacades.uml.FrontEndController">
+                    <!-- if this property is not present it's no use generating the controller -->
+                    <property name="useCase"/>
+                </type>
+            </modelElement>
+        </modelElements>
+    </template>
+    <template
+        path="templates/grails/webflow/GrailsWebFlowController.vsl"
+        outputPattern="$generatedFile"
+        outlet="controller-impls"
+        overwrite="false">
+        <modelElements variable="controller">
+            <modelElement>
+                <type name="org.andromda.metafacades.uml.FrontEndController">
+                    <!-- if this property is not present it's no use generating the controller -->
+                    <property name="useCase"/>
+                </type>
+            </modelElement>
+        </modelElements>
+    </template>
+    <template
+        path="templates/grails/webflow/GrailsWebFlowView.gsp.vsl"
+        outputPattern="$generatedFile"
+        outlet="views"
+        overwrite="false">
+        <modelElements variable="view">
+            <modelElement>
+                <type name="org.andromda.metafacades.uml.FrontEndView">
+                    <!-- if this property is not present it's no use generating the controller -->
+                    <property name="useCase"/>
+                </type>
+            </modelElement>
+        </modelElements>
+    </template>
+
+
+    <!-- cartridge-template merge-point -->
+
+</cartridge>

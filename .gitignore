@@ -1,0 +1,5 @@
+.classpath
+.project
+.settings
+andromda-grails/target
+andromda-grails/*.log

@@ -1,0 +1,22 @@
+##author stephane.manciot@ebiznext.com
+##parse("templates/grails/webflow/action.vm")
+#set($indent ="    ")
+#set($useCase = $view.useCase)
+#set($controller = ${grailsUtils.normalizeWebFlowControllerName(${useCase.controller.name})})
+#set($webFlow = ${grailsUtils.normalizeWebFlowStateName(${useCase.name})})
+#set ($generatedFile = "${controller}/$webFlow/${grailsUtils.normalizeWebFlowStateName(${view.name})}.gsp")
+<html>
+    <head>
+        <meta name="layout" content="main" />
+    </head>
+    <body>
+## handle transitions
+#foreach($action in $view.actions)
+#set ($trigger = $action.trigger)
+#set ($triggerKey = $stringUtils.toResourceMessageKey($trigger.name))
+##getTargetedAction($action)
+##set($webFlowStateName = $grailsUtils.normalizeWebFlowStateName(${__targetedAction.name}))
+    <g:link controller="${controller}" action="${webFlow}" event="${triggerKey}">${trigger.name}</g:link><br/>
+#end
+    </body>
+</html>

@@ -1,0 +1,134 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.andromda.cartridges</groupId>
+		<artifactId>andromda-cartridges</artifactId>
+		<version>3.2</version>
+	</parent>
+	<artifactId>andromda-grails-cartridge</artifactId>
+	<packaging>andromda-cartridge</packaging>
+	<name>AndroMDA Grails Cartridge</name>
+	<description>
+		Generates grails artifacts from UML component diagrams.
+	</description>
+	<developers>
+		<developer>
+			<name>Hayssam SALEH</name>
+			<email>hayssam.saleh@ebiznext.com</email>
+			<organization>ebiznext</organization>
+			<organizationUrl>http://www.ebiznext.com</organizationUrl>
+			<roles>
+				<role>admin</role>
+			</roles>
+		</developer>
+		<developer>
+			<name>Stephane MANCIOT</name>
+			<email>stephane.manciot@ebiznext.com</email>
+			<organization>ebiznext</organization>
+			<organizationUrl>http://www.ebiznext.com</organizationUrl>
+			<roles>
+				<role>architect</role>
+				<role>developer</role>
+			</roles>
+		</developer>
+		<developer>
+			<name>Mourad DACHRAOUI</name>
+			<email>mourad.dachraoui@ebiznext.com</email>
+			<organization>ebiznext</organization>
+			<organizationUrl>http://www.ebiznext.com</organizationUrl>
+			<roles>
+				<role>developer</role>
+			</roles>
+		</developer>
+		<developer>
+			<name>Yoann BAUDY</name>
+			<email>yoann.baudy@ebiznext.com</email>
+			<organization>ebiznext</organization>
+			<organizationUrl>http://www.ebiznext.com</organizationUrl>
+			<roles>
+				<role>contributor</role>
+			</roles>
+		</developer>
+		<developer>
+			<name>David AZRIA</name>
+			<email>david.azria@ebiznext.com</email>
+			<organization>ebiznext</organization>
+			<organizationUrl>http://www.ebiznext.com</organizationUrl>
+			<roles>
+				<role>contributor</role>
+			</roles>
+		</developer>
+	</developers>
+	<dependencies>
+		<dependency>
+			<groupId>org.omg.profiles.uml14</groupId>
+			<artifactId>UML_Standard_Profile</artifactId>
+			<version>1.0</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.andromda.taglibs</groupId>
+			<artifactId>andromda-formatting-taglib</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.andromda.taglibs</groupId>
+			<artifactId>andromda-collections-taglib</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.andromda.cartridges</groupId>
+			<artifactId>andromda-meta-cartridge</artifactId>
+			<version>${project.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.andromda.cartridges</groupId>
+			<artifactId>andromda-hibernate-cartridge</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
+	<build>
+		<plugins>
+            <!-- maven-compiler-plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.5.1</version>
+                <configuration>
+                    <source>${compiler.source}</source>
+                    <target>${compiler.target}</target>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.andromda.maven.plugins</groupId>
+                <artifactId>andromda-maven-plugin</artifactId>  
+                <dependencies>
+                    <dependency>
+                        <groupId>org.andromda.cartridges</groupId>
+                        <artifactId>andromda-meta-cartridge</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                </dependencies>    
+            </plugin>
+			<plugin>
+				<groupId>org.andromda.maven.plugins</groupId>
+				<artifactId>andromda-cartridge-plugin</artifactId>
+				<version>${project.version}</version>
+			</plugin>
+		</plugins>
+	</build>
+	<properties>
+		<andromda.version>3.2</andromda.version>
+        <model.uri>jar:file:${src.dir}/uml/GrailsMetafacadeModel.xml.zip!/GrailsMetafacadeModel.xml</model.uri>
+		<test.model.uri>
+			jar:file:${test.src.dir}/uml/GrailsCartridgeTestModel.xml.zip!/GrailsCartridgeTestModel.xml
+		</test.model.uri>
+        <!-- java properties -->
+        <compiler.source>1.6</compiler.source>
+        <compiler.target>${compiler.source}</compiler.target>
+	</properties>
+</project>
