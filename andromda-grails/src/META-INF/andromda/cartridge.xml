@@ -256,6 +256,20 @@
         overwrite="false">
     </template>
 
+    <!-- hibernate services templates -->
+    <template
+        path="templates/grails/spring/RenderBase.vsl"
+        outputPattern="$generatedFile"
+        outlet="services"
+        overwrite="false">
+    </template>
+    <template
+        path="templates/grails/spring/ValidationBase.vsl"
+        outputPattern="$generatedFile"
+        outlet="services"
+        overwrite="false">
+    </template>
+    
     <!-- unit test templates -->
     <template
         path="templates/grails/test/unit/MockGrailsPluginManager.vsl"
