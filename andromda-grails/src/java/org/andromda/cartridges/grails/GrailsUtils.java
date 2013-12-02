@@ -125,15 +125,12 @@ public class GrailsUtils
     /**
      * @param classifier
      *            - classifier
-     * @param attr
-     *            - entity attribute
-     * @return delegator name
+     * @return classifier name
      */
-    public String getCustomDelegatorName(ClassifierFacade classifier)
+    public String getClassifierName(ClassifierFacade classifier)
     {
         String ret = 
                 classifier.getName().substring(0, 1).toLowerCase() + classifier.getName().substring(1);
-            ret += "Delegator";
         return ret;
     }
 

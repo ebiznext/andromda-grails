@@ -21,17 +21,13 @@ ${indent}extends $entity.generalization.fullyQualifiedEntityName
 #end
 ${indent}implements java.io.Serializable
 {
-#set($delegatorName = "$grailsUtils.getCustomDelegatorName($entity)")
-#set($delegatorFullyQualifiedName = "${entity.fullyQualifiedEntityName}Delegator")
-${indent}private ${delegatorFullyQualifiedName} $delegatorName
-
-${indent}${entity.entityName}() {
-${indent}${indent}this.$delegatorName = new ${delegatorFullyQualifiedName}(this)
-${indent}}
+#set($classifierName = "$grailsUtils.getClassifierName($entity)")
+${indent}def ${classifierName}ValidationService
+${indent}def ${classifierName}RenderService
 
 #renderPropertiesAndAssociations($entity "")
 
-${indent}static transients = [ '$delegatorName' ]
+${indent}static transients = [ '${classifierName}ValidationService', '${classifierName}RenderService' ]
 ##
 ##Render mapping Block
 ##
@@ -41,11 +37,17 @@ ${indent}static transients = [ '$delegatorName' ]
 ## Constraints block.
 ## Provide Grails with a declarative DSL for defining validation rules, 
 ## schema generation and CRUD generation meta data
+#set($validationFullyQualifiedName = "")
+#if ($stringUtils.isNotBlank($entity.packageName))
+#set($validationFullyQualifiedName = "${entity.packageName}.${entity.entityName}ValidationService")
+#else
+#set($validationFullyQualifiedName = "${entity.entityName}ValidationService")
+#end
 ${indent}static constraints = {
 #foreach ($attribute in $entity.attributes)
 ## Declaring constraints to keep attribut order
 #if ($attribute.name != 'id')
-${indent}${indent}$attribute.name (#if(!$attribute.required)nullable:true#else blank:false, nullable:false#end, unique:$attribute.unique#if($grailsUtils.hasCustomValidator($attribute)), validator:${delegatorFullyQualifiedName}.$grailsUtils.getCustomValidatorName($entity, $attribute)#end#if($grailsUtils.isCreditCard($attribute)), creditCard:true#end#if($grailsUtils.isEmail($attribute)), email:true#end#if($grailsUtils.isUrl($attribute)), url:true#end#if($grailsUtils.isRegularExpression($attribute) && $grailsUtils.getMatchesConstraint($attribute)!=''), matches:"$grailsUtils.getMatchesConstraint($attribute)"#elseif($grailsUtils.isRange($attribute) && $grailsUtils.getRangeConstraint($attribute)!=''), range:$grailsUtils.getRangeConstraint($attribute)#end)
+${indent}${indent}$attribute.name (#if(!$attribute.required)nullable:true#else blank:false, nullable:false#end, unique:$attribute.unique#if($grailsUtils.hasCustomValidator($attribute)), validator:${validationFullyQualifiedName}.$grailsUtils.getCustomValidatorName($entity, $attribute)#end#if($grailsUtils.isCreditCard($attribute)), creditCard:true#end#if($grailsUtils.isEmail($attribute)), email:true#end#if($grailsUtils.isUrl($attribute)), url:true#end#if($grailsUtils.isRegularExpression($attribute) && $grailsUtils.getMatchesConstraint($attribute)!=''), matches:"$grailsUtils.getMatchesConstraint($attribute)"#elseif($grailsUtils.isRange($attribute) && $grailsUtils.getRangeConstraint($attribute)!=''), range:$grailsUtils.getRangeConstraint($attribute)#end)
 #end
 #end
 #foreach ($sourceEnd in $entity.associationEnds)
@@ -53,7 +55,7 @@ ${indent}${indent}$attribute.name (#if(!$attribute.required)nullable:true#else b
 #if ($otherEnd.navigable && !$otherEnd.transient)
 #if ($sourceEnd.one2One || $sourceEnd.many2One)
 #if (!$otherEnd.aggregation && !$otherEnd.composition)
-${indent}${indent}$otherEnd.name (#if(!$otherEnd.required)nullable:true#else blank:false, nullable:false#end#if($grailsUtils.hasCustomValidator($otherEnd)), validator:${delegatorFullyQualifiedName}.$grailsUtils.getCustomValidatorName($entity, $otherEnd)#end)
+${indent}${indent}$otherEnd.name (#if(!$otherEnd.required)nullable:true#else blank:false, nullable:false#end#if($grailsUtils.hasCustomValidator($otherEnd)), validator:${validationFullyQualifiedName}.$grailsUtils.getCustomValidatorName($entity, $otherEnd)#end)
 #end
 #end
 #end
@@ -108,9 +110,10 @@ ${indent}}
 #end
     }
 #else
-    {
-        return ${delegatorFullyQualifiedName}.${finder.name}(#if(!$finder.arguments.empty)${finder.argumentNames}#end);
-    }
+##FIXME
+##    {
+##        return ${delegatorFullyQualifiedName}.${finder.name}(#if(!$finder.arguments.empty)${finder.argumentNames}#end);
+##    }
 
 #end
 #end
@@ -126,71 +129,42 @@ ${indent}}
     }
     
 #end
-#set ($daoInheritance = $entity.generalization && $daoInheritanceEnabled)
-#if ($daoInheritance)
-#set ($valueObjectReferences = $grailsUtils.getValueObjectReferences($entity, false))
-#else
-#set ($valueObjectReferences = $grailsUtils.getValueObjectReferences($entity, true))
-#end
-#foreach ($valueObjectRef in $valueObjectReferences)
 
-#set($transformationMethodName = "to$stringUtils.capitalize(${valueObjectRef.name})")
-${indent}def $valueObjectRef.targetElement.fullyQualifiedName ${transformationMethodName}()
-${indent}{
-${indent}${indent}final $valueObjectRef.targetElement.fullyQualifiedName target = new ${valueObjectRef.targetElement.fullyQualifiedName}()
-#set ($entityProperties = $entity.allProperties)
-#foreach ($property in $valueObjectRef.targetElement.allProperties)
-#* *##foreach ($entityProperty in $entityProperties)
-#*    *##if ($property.name.equals($entityProperty.name))
-#*        *##set ($entityPropertyGetterValue = false)
-#*        *##set ($entityPropertyGetterValue = $converter.typeConvert($entityProperty.type.fullyQualifiedName, "this.${entityProperty.getterName}()", $property.type.fullyQualifiedName))
-#*        *##if ($entityPropertyGetterValue)
-${indent}${indent}target.${property.setterName}($entityPropertyGetterValue)
-#*        *##else
-${indent}${indent}// No conversion for target.${property.name} (can't convert source.${entityProperty.getterName}():${entityProperty.type.fullyQualifiedName} to $property.type.fullyQualifiedName)
-#*        *##end
-#*    *##end
-#* *##end
-#end
-${indent}${indent}return ${delegatorName}.${transformationMethodName}(target)
-${indent}}
-#end
-
-#foreach ($operation in $entity.allBusinessOperations)
-#set ($returnType = $operation.returnType)
-#set ($signature = $operation.signature)
-    /**
-$operation.getDocumentation("     * ")
-     */
-#if ($operation.exceptionsPresent)
-${indent}$operation.visibility $returnType.fullyQualifiedName $signature
-${indent}${indent}throws $operation.exceptionList {
-#else
-${indent}$operation.visibility $returnType.fullyQualifiedName $signature {
-#end
-${indent}${indent}${indent}${delegatorName}.${operation.name}(${operation.argumentNames})
-${indent}}
-
-#end
-${indent}String toString(){return ${delegatorName}.toString()}
+${indent}String toString(){return ${classifierName}RenderService.asString(this)}
 
 ${indent}def beforeInsert = {
-${indent}${indent}${delegatorName}.beforeInsert()
+${indent}${indent}${classifierName}ValidationService.beforeInsert(this)
 ${indent}}
 
 ${indent}def beforeUpdate = {
-${indent}${indent}${delegatorName}.beforeUpdate()
+${indent}${indent}${classifierName}ValidationService.beforeUpdate(this)
 ${indent}}
 
 ${indent}def beforeDelete = {
-${indent}${indent}${delegatorName}.beforeDelete()
+${indent}${indent}${classifierName}ValidationService.beforeDelete(this)
+${indent}}
+
+${indent}def beforeValidate = {
+${indent}${indent}${classifierName}ValidationService.beforeValidate(this)
+${indent}}
+
+${indent}def afterInsert = {
+${indent}${indent}${classifierName}ValidationService.afterInsert(this)
+${indent}}
+
+${indent}def afterUpdate = {
+${indent}${indent}${classifierName}ValidationService.afterUpdate(this)
+${indent}}
+
+${indent}def afterDelete = {
+${indent}${indent}${classifierName}ValidationService.afterDelete(this)
 ${indent}}
 
 ${indent}def onLoad = {
-${indent}${indent}${delegatorName}.onLoad()
+${indent}${indent}${classifierName}ValidationService.onLoad(this)
 ${indent}}
 
-${indent}java.util.Map asMapForJSON() {return ${delegatorName}.asMapForJSON()}
+${indent}java.util.Map asMapForJSON() {return ${classifierName}RenderService.asMap(this)}
 
 ${indent}// GrailsEntity.vsl merge-point
 }

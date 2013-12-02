@@ -107,38 +107,12 @@
             </modelElement>
         </modelElements>
     </template>
-    <template
-        path="templates/grails/hibernate/GrailsEntityDelegator.vsl"
-        outputPattern="$generatedFile"
-        outlet="entity-delegators"
-        overwrite="false">
-        <modelElements variable="entity">
-            <modelElement>
-                <type name="org.andromda.cartridges.hibernate.metafacades.HibernateEntity">
-                    <property name="requiresMapping"/>
-                </type>
-            </modelElement>
-        </modelElements>
-    </template>
     
     <template
         path="templates/grails/hibernate/GrailsEntity.vsl"
         outputPattern="$generatedFile"
         outlet="entities"
         overwrite="true">
-        <modelElements variable="entity">
-            <modelElement>
-                <type name="org.andromda.cartridges.hibernate.metafacades.HibernateEntity">
-                    <property name="requiresMapping">false</property>
-                </type>
-            </modelElement>
-        </modelElements>
-    </template>
-    <template
-        path="templates/grails/hibernate/GrailsEntityDelegator.vsl"
-        outputPattern="$generatedFile"
-        outlet="entity-delegators"
-        overwrite="false">
         <modelElements variable="entity">
             <modelElement>
                 <type name="org.andromda.cartridges.hibernate.metafacades.HibernateEntity">
@@ -268,6 +242,58 @@
         outputPattern="$generatedFile"
         outlet="services"
         overwrite="false">
+    </template>
+    <template
+        path="templates/grails/spring/GrailsEntityValidationService.vsl"
+        outputPattern="$generatedFile"
+        outlet="service-impls"
+        overwrite="false">
+        <modelElements variable="entity">
+            <modelElement>
+                <type name="org.andromda.cartridges.hibernate.metafacades.HibernateEntity">
+                    <property name="requiresMapping"/>
+                </type>
+            </modelElement>
+        </modelElements>
+    </template>
+    <template
+        path="templates/grails/spring/GrailsEntityValidationService.vsl"
+        outputPattern="$generatedFile"
+        outlet="service-impls"
+        overwrite="false">
+        <modelElements variable="entity">
+            <modelElement>
+                <type name="org.andromda.cartridges.hibernate.metafacades.HibernateEntity">
+                    <property name="requiresMapping">false</property>
+                </type>
+            </modelElement>
+        </modelElements>
+    </template>
+    <template
+        path="templates/grails/spring/GrailsEntityRenderService.vsl"
+        outputPattern="$generatedFile"
+        outlet="service-impls"
+        overwrite="false">
+        <modelElements variable="entity">
+            <modelElement>
+                <type name="org.andromda.cartridges.hibernate.metafacades.HibernateEntity">
+                    <property name="requiresMapping"/>
+                </type>
+            </modelElement>
+        </modelElements>
+    </template>
+    <template
+        path="templates/grails/spring/GrailsEntityRenderService.vsl"
+        outputPattern="$generatedFile"
+        outlet="service-impls"
+        overwrite="false">
+        <modelElements variable="entity">
+            <modelElement>
+                <type name="org.andromda.cartridges.hibernate.metafacades.HibernateEntity">
+                    <property name="requiresMapping">false</property>
+                </type>
+            </modelElement>
+        </modelElements>
     </template>
     
     <!-- unit test templates -->

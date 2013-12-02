@@ -13,19 +13,35 @@ package service
 
 class ValidationBase<T  extends Serializable> {
 ## events
-${indent}def beforeInsert = {
+${indent}def beforeInsert(T entity) {
 ${indent}${indent}// your implementation goes here
 ${indent}}
 
-${indent}def beforeUpdate = {
+${indent}def beforeUpdate(T entity) {
 ${indent}${indent}// your implementation goes here
 ${indent}}
 
-${indent}def beforeDelete = {
+${indent}def beforeDelete(T entity) {
 ${indent}${indent}// your implementation goes here
 ${indent}}
 
-${indent}def onLoad = {
+${indent}def beforeValidate(T entity) {
+${indent}${indent}// your implementation goes here
+${indent}}
+
+${indent}def afterInsert(T entity) {
+${indent}${indent}// your implementation goes here
+${indent}}
+
+${indent}def afterUpdate(T entity) {
+${indent}${indent}// your implementation goes here
+${indent}}
+
+${indent}def afterDelete(T entity) {
+${indent}${indent}// your implementation goes here
+${indent}}
+
+${indent}def onLoad(T entity) {
 ${indent}${indent}// your implementation goes here
 ${indent}}
 
