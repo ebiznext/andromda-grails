@@ -32,7 +32,7 @@ ${indent}extends ${renderBase}<${entityName}>
 {
 
 ## entity asMap
-${indent}def java.util.Map asMap($entityName entity) {return super.asMap(entity)}
+${indent}java.util.Map asMap($entityName entity) {return super.asMap(entity)}
 
 ## entity asString
 #if(!$entity.getIdentifiers(true).empty)
@@ -46,7 +46,7 @@ ${indent}def String asString($entityName entity){return "${entityName} : "+entit
 #end
 #else
 #set($i = 0)
-${indent}def String asString($entityName entity){return "${entityName} : ["+#foreach ($identifier in $entity.identifiers)#if($i != 0)+","+#end
+${indent}String asString($entityName entity){return "${entityName} : ["+#foreach ($identifier in $entity.identifiers)#if($i != 0)+","+#end
 entity.$!{identifier.name}#set($i = 1)#end+"]"}
 #end
 #end

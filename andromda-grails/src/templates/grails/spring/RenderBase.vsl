@@ -17,8 +17,8 @@ abstract class RenderBase<T extends Serializable> {
 #if($stringUtils.isNotEmpty($customTypesPackage))
 #set ($renderUtil = "${customTypesPackage}.json.RenderUtil")
 #end
-${indent}def java.util.Map asMap(T entity) {
+${indent}java.util.Map asMap(T entity) {
 ${indent}${indent}return ${renderUtil}.asMapForJSON(entity)
 ${indent}}
-${indent}def abtsract String asString(T entity)
+${indent}abtsract String asString(T entity)
 }
