@@ -129,9 +129,7 @@ public class GrailsUtils
      */
     public String getClassifierName(ClassifierFacade classifier)
     {
-        String ret = 
-                classifier.getName().substring(0, 1).toLowerCase() + classifier.getName().substring(1);
-        return ret;
+        return java.beans.Introspector.decapitalize(classifier.getName());
     }
 
     /**
