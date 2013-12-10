@@ -30,7 +30,7 @@ abstract class ${service.baseName}
 #end
 #foreach($serviceRef in $service.serviceReferences)
 #set ($targetElement = $serviceRef.targetElement)
-    def $targetElement.fullyQualifiedInterfaceName $serviceRef.name;
+    $targetElement.fullyQualifiedInterfaceName $serviceRef.name
 
 #end
 #foreach ($operation in $service.implementationOperations)
