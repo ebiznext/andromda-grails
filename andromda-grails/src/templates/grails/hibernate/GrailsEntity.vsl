@@ -21,9 +21,18 @@ ${indent}extends $entity.generalization.fullyQualifiedEntityName
 #end
 ${indent}implements java.io.Serializable
 {
+#set($validationFullyQualifiedName = "")
+#set($renderFullyQualifiedName = "")
+#if ($stringUtils.isNotBlank($entity.packageName))
+#set($validationFullyQualifiedName = "${entity.packageName}.${entity.entityName}ValidationService")
+#set($renderFullyQualifiedName = "${entity.packageName}.${entity.entityName}RenderService")
+#else
+#set($validationFullyQualifiedName = "${entity.entityName}ValidationService")
+#set($renderFullyQualifiedName = "${entity.entityName}RenderService")
+#end
 #set($classifierName = "$grailsUtils.getClassifierName($entity)")
-${indent}def ${classifierName}ValidationService
-${indent}def ${classifierName}RenderService
+${indent}${validationFullyQualifiedName} ${classifierName}ValidationService
+${indent}${renderFullyQualifiedName} ${classifierName}RenderService
 
 #renderPropertiesAndAssociations($entity "")
 
@@ -37,12 +46,6 @@ ${indent}static transients = [ '${classifierName}ValidationService', '${classifi
 ## Constraints block.
 ## Provide Grails with a declarative DSL for defining validation rules, 
 ## schema generation and CRUD generation meta data
-#set($validationFullyQualifiedName = "")
-#if ($stringUtils.isNotBlank($entity.packageName))
-#set($validationFullyQualifiedName = "${entity.packageName}.${entity.entityName}ValidationService")
-#else
-#set($validationFullyQualifiedName = "${entity.entityName}ValidationService")
-#end
 ${indent}static constraints = {
 #foreach ($attribute in $entity.attributes)
 ## Declaring constraints to keep attribut order
