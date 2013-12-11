@@ -76,6 +76,7 @@ ${indent}${indent}${indent}#if($first == "false"),#end#set($first = "false")'$in
 ${indent}${indent}]
 ${indent}}
 #end
+${indent}loadBeans("classpath:*defaultResources.groovy")
 // beans merge-point
 
 }

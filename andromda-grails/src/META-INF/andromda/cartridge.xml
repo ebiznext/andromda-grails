@@ -230,49 +230,23 @@
         overwrite="false">
     </template>
 
-    <!-- hibernate services templates -->
+    <!-- hibernate beans templates -->
     <template
-        path="templates/grails/spring/RenderBase.vsl"
+        path="templates/grails/hibernate/RenderBase.vsl"
         outputPattern="$generatedFile"
-        outlet="services"
+        outlet="entities"
         overwrite="false">
     </template>
     <template
-        path="templates/grails/spring/ValidationBase.vsl"
+        path="templates/grails/hibernate/ValidationBase.vsl"
         outputPattern="$generatedFile"
-        outlet="services"
+        outlet="entities"
         overwrite="false">
     </template>
     <template
-        path="templates/grails/spring/GrailsEntityValidationService.vsl"
+        path="templates/grails/hibernate/GrailsEntityValidation.vsl"
         outputPattern="$generatedFile"
-        outlet="service-impls"
-        overwrite="false">
-        <modelElements variable="entity">
-            <modelElement>
-                <type name="org.andromda.cartridges.hibernate.metafacades.HibernateEntity">
-                    <property name="requiresMapping"/>
-                </type>
-            </modelElement>
-        </modelElements>
-    </template>
-    <template
-        path="templates/grails/spring/GrailsEntityValidationService.vsl"
-        outputPattern="$generatedFile"
-        outlet="service-impls"
-        overwrite="false">
-        <modelElements variable="entity">
-            <modelElement>
-                <type name="org.andromda.cartridges.hibernate.metafacades.HibernateEntity">
-                    <property name="requiresMapping">false</property>
-                </type>
-            </modelElement>
-        </modelElements>
-    </template>
-    <template
-        path="templates/grails/spring/GrailsEntityRenderService.vsl"
-        outputPattern="$generatedFile"
-        outlet="service-impls"
+        outlet="entities"
         overwrite="false">
         <modelElements variable="entity">
             <modelElement>
@@ -283,9 +257,9 @@
         </modelElements>
     </template>
     <template
-        path="templates/grails/spring/GrailsEntityRenderService.vsl"
+        path="templates/grails/hibernate/GrailsEntityValidation.vsl"
         outputPattern="$generatedFile"
-        outlet="service-impls"
+        outlet="entities"
         overwrite="false">
         <modelElements variable="entity">
             <modelElement>
@@ -295,6 +269,46 @@
             </modelElement>
         </modelElements>
     </template>
+    <template
+        path="templates/grails/hibernate/GrailsEntityRender.vsl"
+        outputPattern="$generatedFile"
+        outlet="entities"
+        overwrite="false">
+        <modelElements variable="entity">
+            <modelElement>
+                <type name="org.andromda.cartridges.hibernate.metafacades.HibernateEntity">
+                    <property name="requiresMapping"/>
+                </type>
+            </modelElement>
+        </modelElements>
+    </template>
+    <template
+        path="templates/grails/hibernate/GrailsEntityRender.vsl"
+        outputPattern="$generatedFile"
+        outlet="entities"
+        overwrite="false">
+        <modelElements variable="entity">
+            <modelElement>
+                <type name="org.andromda.cartridges.hibernate.metafacades.HibernateEntity">
+                    <property name="requiresMapping">false</property>
+                </type>
+            </modelElement>
+        </modelElements>
+    </template>
+    <template
+        path="templates/grails/hibernate/GrailsEntityResources.vsl"
+        outputPattern="spring/defaultResources.groovy"
+        outlet="configuration"
+        overwrite="true"
+        outputToSingleFile="true"
+        outputOnEmptyElements="false">
+        <modelElements>
+            <modelElement variable="entities">
+                <type name="org.andromda.cartridges.hibernate.metafacades.HibernateEntity"/>
+            </modelElement>
+        </modelElements>
+    </template>
+
     
     <!-- unit test templates -->
     <template

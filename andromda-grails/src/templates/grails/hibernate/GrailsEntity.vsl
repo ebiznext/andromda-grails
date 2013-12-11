@@ -24,19 +24,19 @@ ${indent}implements java.io.Serializable
 #set($validationFullyQualifiedName = "")
 #set($renderFullyQualifiedName = "")
 #if ($stringUtils.isNotBlank($entity.packageName))
-#set($validationFullyQualifiedName = "${entity.packageName}.${entity.entityName}ValidationService")
-#set($renderFullyQualifiedName = "${entity.packageName}.${entity.entityName}RenderService")
+#set($validationFullyQualifiedName = "${entity.packageName}.${entity.entityName}Validation")
+#set($renderFullyQualifiedName = "${entity.packageName}.${entity.entityName}Render")
 #else
-#set($validationFullyQualifiedName = "${entity.entityName}ValidationService")
-#set($renderFullyQualifiedName = "${entity.entityName}RenderService")
+#set($validationFullyQualifiedName = "${entity.entityName}Validation")
+#set($renderFullyQualifiedName = "${entity.entityName}Render")
 #end
 #set($classifierName = "$grailsUtils.getClassifierName($entity)")
-${indent}${validationFullyQualifiedName} ${classifierName}ValidationService
-${indent}${renderFullyQualifiedName} ${classifierName}RenderService
+${indent}${validationFullyQualifiedName} ${classifierName}Validation
+${indent}${renderFullyQualifiedName} ${classifierName}Render
 
 #renderPropertiesAndAssociations($entity "")
 
-${indent}static transients = [ '${classifierName}ValidationService', '${classifierName}RenderService' ]
+${indent}static transients = [ '${classifierName}Validation', '${classifierName}Render' ]
 ##
 ##Render mapping Block
 ##
@@ -133,41 +133,41 @@ ${indent}}
     
 #end
 
-${indent}String toString(){return ${classifierName}RenderService.asString(this)}
+${indent}String toString(){return ${classifierName}Render.asString(this)}
 
 ${indent}def beforeInsert = {
-${indent}${indent}${classifierName}ValidationService.beforeInsert(this)
+${indent}${indent}${classifierName}Validation.beforeInsert(this)
 ${indent}}
 
 ${indent}def beforeUpdate = {
-${indent}${indent}${classifierName}ValidationService.beforeUpdate(this)
+${indent}${indent}${classifierName}Validation.beforeUpdate(this)
 ${indent}}
 
 ${indent}def beforeDelete = {
-${indent}${indent}${classifierName}ValidationService.beforeDelete(this)
+${indent}${indent}${classifierName}Validation.beforeDelete(this)
 ${indent}}
 
 ${indent}def beforeValidate = {
-${indent}${indent}${classifierName}ValidationService.beforeValidate(this)
+${indent}${indent}${classifierName}Validation.beforeValidate(this)
 ${indent}}
 
 ${indent}def afterInsert = {
-${indent}${indent}${classifierName}ValidationService.afterInsert(this)
+${indent}${indent}${classifierName}Validation.afterInsert(this)
 ${indent}}
 
 ${indent}def afterUpdate = {
-${indent}${indent}${classifierName}ValidationService.afterUpdate(this)
+${indent}${indent}${classifierName}Validation.afterUpdate(this)
 ${indent}}
 
 ${indent}def afterDelete = {
-${indent}${indent}${classifierName}ValidationService.afterDelete(this)
+${indent}${indent}${classifierName}Validation.afterDelete(this)
 ${indent}}
 
 ${indent}def onLoad = {
-${indent}${indent}${classifierName}ValidationService.onLoad(this)
+${indent}${indent}${classifierName}Validation.onLoad(this)
 ${indent}}
 
-${indent}java.util.Map asMapForJSON() {return ${classifierName}RenderService.asMap(this)}
+${indent}java.util.Map asMapForJSON() {return ${classifierName}Render.asMap(this)}
 
 ${indent}// GrailsEntity.vsl merge-point
 }
