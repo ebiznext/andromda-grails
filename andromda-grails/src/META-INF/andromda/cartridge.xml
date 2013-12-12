@@ -234,19 +234,19 @@
     <template
         path="templates/grails/hibernate/RenderBase.vsl"
         outputPattern="$generatedFile"
-        outlet="entities"
+        outlet="entity-tools"
         overwrite="false">
     </template>
     <template
         path="templates/grails/hibernate/ValidationBase.vsl"
         outputPattern="$generatedFile"
-        outlet="entities"
+        outlet="entity-tools"
         overwrite="false">
     </template>
     <template
         path="templates/grails/hibernate/GrailsEntityValidation.vsl"
         outputPattern="$generatedFile"
-        outlet="entities"
+        outlet="entity-tools"
         overwrite="false">
         <modelElements variable="entity">
             <modelElement>
@@ -259,7 +259,7 @@
     <template
         path="templates/grails/hibernate/GrailsEntityValidation.vsl"
         outputPattern="$generatedFile"
-        outlet="entities"
+        outlet="entity-tools"
         overwrite="false">
         <modelElements variable="entity">
             <modelElement>
@@ -272,7 +272,7 @@
     <template
         path="templates/grails/hibernate/GrailsEntityRender.vsl"
         outputPattern="$generatedFile"
-        outlet="entities"
+        outlet="entity-tools"
         overwrite="false">
         <modelElements variable="entity">
             <modelElement>
@@ -285,7 +285,7 @@
     <template
         path="templates/grails/hibernate/GrailsEntityRender.vsl"
         outputPattern="$generatedFile"
-        outlet="entities"
+        outlet="entity-tools"
         overwrite="false">
         <modelElements variable="entity">
             <modelElement>
