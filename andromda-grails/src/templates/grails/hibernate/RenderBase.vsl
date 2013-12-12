@@ -10,7 +10,7 @@ package ${customTypesPackage}
 #set ($generatedFile = "${generatedFile}")
 #end
 
-abstract class RenderBase<T extends Serializable> {
+class RenderBase<T extends Serializable> {
 ##json renderer
 #set ($renderUtil = "json.RenderUtil")
 #if($stringUtils.isNotEmpty($customTypesPackage))
@@ -19,5 +19,7 @@ abstract class RenderBase<T extends Serializable> {
 ${indent}java.util.Map asMap(T entity) {
 ${indent}${indent}return ${renderUtil}.asMapForJSON(entity)
 ${indent}}
-${indent}abtsract String asString(T entity)
+${indent}String asString(T entity) {
+${indent}${indent}return entity.toString()
+${indent}}
 }

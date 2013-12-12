@@ -22,17 +22,14 @@ ${indent}extends $entity.generalization.fullyQualifiedEntityName
 ${indent}implements java.io.Serializable
 {
 #set($validationFullyQualifiedName = "")
-#set($renderFullyQualifiedName = "")
 #if ($stringUtils.isNotBlank($entity.packageName))
 #set($validationFullyQualifiedName = "${entity.packageName}.${entity.entityName}Validation")
-#set($renderFullyQualifiedName = "${entity.packageName}.${entity.entityName}Render")
 #else
 #set($validationFullyQualifiedName = "${entity.entityName}Validation")
-#set($renderFullyQualifiedName = "${entity.entityName}Render")
 #end
 #set($classifierName = "$grailsUtils.getClassifierName($entity)")
-${indent}${validationFullyQualifiedName} ${classifierName}Validation
-${indent}${renderFullyQualifiedName} ${classifierName}Render
+${indent}def ${classifierName}Validation
+${indent}def ${classifierName}Render
 
 #renderPropertiesAndAssociations($entity "")
 
