@@ -61,6 +61,7 @@
 				<property name="hibernateShowSql">true</property>
 				<property name="hibernateEnableCache">true</property>
                 <property name="hibernateEnableAssociationsCache">true</property>
+                <!-- <property name="autoTimestamp">false</property> -->
                 
                 <!-- gorm properties -->
 				<property name="optimisticLocking">true</property>

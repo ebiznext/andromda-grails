@@ -868,6 +868,14 @@
                    attempt to auto-generate conversions for date/time related attributes.
                 </documentation>
             </property>
+
+            <property name="autoTimestamp">
+                <default>true</default>
+                <documentation>
+                    Set to <code>false</code> to disable grails autoTimestamp
+                </documentation>
+            </property>
+
         </propertyGroup>
         <propertyGroup name="Web Flow">
             <property name="actionFormScope">

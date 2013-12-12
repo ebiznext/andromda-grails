@@ -31,6 +31,13 @@ ${indent}implements java.io.Serializable
 ${indent}def ${classifierName}Validation
 ${indent}def ${classifierName}Render
 
+#if($entity.generalization)
+
+#elseif("${autoTimestamp}" == "true")
+${indent}java.util.Date dateCreated
+${indent}java.util.Date lastUpdated
+#end
+
 #renderPropertiesAndAssociations($entity "")
 
 ${indent}static transients = [ '${classifierName}Validation', '${classifierName}Render' ]

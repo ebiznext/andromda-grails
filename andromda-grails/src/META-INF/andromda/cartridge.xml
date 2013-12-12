@@ -79,6 +79,7 @@
     <property reference="transactionManagerName"/>
     <!-- gorm -->
     <property reference="optimisticLocking"/>
+    <property reference="autoTimestamp"/>
     <!-- web services -->
     <property reference="soapStack"/>
 

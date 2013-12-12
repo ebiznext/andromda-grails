@@ -254,6 +254,12 @@ ${indent}static embedded = [ $!{embedded} ]
 $!{indent}static mapping = {
 ## Formula on entity not supported
 
+#if($entity.generalization)
+
+#elseif("${autoTimestamp}" == "true")
+$!{indent}$!{indent}autoTimestamp true
+#end
+
 #if($entity.hibernateInheritanceClass)
 #if($stringUtils.isNotBlank($entity.hibernateDiscriminatorValue))
 #set($mappingDiscriminatorValue = "$!{entity.hibernateDiscriminatorValue}")
