@@ -32,7 +32,7 @@ ${indent}extends ${renderBase}<${entityName}>
 {
 
 ## entity asMap
-${indent}java.util.Map asMap($entityName entity) {return super.asMap(entity)}
+${indent}java.util.Map asMap($entityName entity, String lang = 'fr') {return super.asMap(entity, lang)}
 
 ## entity asString
 #if(!$entity.getIdentifiers(true).empty)

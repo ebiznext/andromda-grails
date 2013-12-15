@@ -16,7 +16,7 @@ class RenderBase<T extends Serializable> {
 #if($stringUtils.isNotEmpty($customTypesPackage))
 #set ($renderUtil = "${customTypesPackage}.json.RenderUtil")
 #end
-${indent}java.util.Map asMap(T entity) {
+${indent}java.util.Map asMap(T entity, String lang = 'fr') {
 ${indent}${indent}return ${renderUtil}.asMapForJSON(entity)
 ${indent}}
 ${indent}String asString(T entity) {

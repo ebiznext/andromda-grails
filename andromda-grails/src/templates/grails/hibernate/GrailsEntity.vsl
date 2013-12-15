@@ -171,7 +171,7 @@ ${indent}def onLoad = {
 ${indent}${indent}${classifierName}Validation.onLoad(this)
 ${indent}}
 
-${indent}java.util.Map asMapForJSON() {return ${classifierName}Render.asMap(this)}
+${indent}java.util.Map asMapForJSON(String lang = 'fr') {return ${classifierName}Render.asMap(this, lang)}
 
 ${indent}// GrailsEntity.vsl merge-point
 }
