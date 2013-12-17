@@ -12,9 +12,13 @@
 #if ($stringUtils.isNotBlank($entity.packageName))
 package $entity.packageName;
 #end
+
+import grails.persistence.Entity
+
 /**
 $entity.getDocumentation(" * ")
  */
+@Entity
 class $entity.entityName
 #if($entity.generalization)
 ${indent}extends $entity.generalization.fullyQualifiedEntityName
