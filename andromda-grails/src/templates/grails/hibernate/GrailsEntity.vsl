@@ -14,11 +14,21 @@ package $entity.packageName;
 #end
 
 import grails.persistence.Entity
+import groovy.transform.EqualsAndHashCode
 
 /**
 $entity.getDocumentation(" * ")
  */
 @Entity
+#if (!$entity.compositeIdentifier)
+#if(!$entity.getIdentifiers(true).empty)
+#set ($primaryKey = $entity.getIdentifiers(true).iterator().next())
+@EqualsAndHashCode(includes="${primaryKey.name}")
+#end
+#else
+#set ($first = "true")
+@EqualsAndHashCode(includes="#foreach ($identifier in $entity.identifiers)#if($first == "false"),#end #set($first = "false")${identifier.name}#end")
+#end
 class $entity.entityName
 #if($entity.generalization)
 ${indent}extends $entity.generalization.fullyQualifiedEntityName
