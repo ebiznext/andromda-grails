@@ -13,6 +13,7 @@ package json
 
 import java.text.SimpleDateFormat
 import java.util.HashMap
+import java.util.List
 import java.util.Map
 import org.apache.commons.beanutils.PropertyUtilsBean 
 import org.hibernate.collection.AbstractPersistentCollection 
@@ -52,7 +53,7 @@ class RenderUtil {
      * @param object the object to render
      * @return  map for json renderer
      */
-    public static Map asMapForJSON(property, included, excluded, object) {
+    public static Map asMapForJSON(String property, List<String> included,  List<String> excluded, def object) {
         def map = new HashMap()
         def propertyUtilsBean = PropertyUtilsBean.getInstance()
         propertyUtilsBean.describe(object).collect { key, value ->
