@@ -24,11 +24,7 @@ package $entity.packageName
 #set($entityName = "${entity.entityName}")
 #end
 class ${entity.entityName}Render
-#if($entity.generalization)
-${indent}extends ${entity.generalization.fullyQualifiedEntityName}Render
-#else
 ${indent}extends ${renderBase}<${entityName}>
-#end
 {
 
 ## entity asMap

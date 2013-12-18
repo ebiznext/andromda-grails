@@ -24,11 +24,7 @@ class ${entity.entityName}Validation
 #else
 #set($entityName = "${entity.entityName}")
 #end
-#if($entity.generalization)
-${indent}extends ${entity.generalization.fullyQualifiedEntityName}Validation
-#else
 ${indent}extends ${validationBase}<${entityName}>
-#end
 {
 
 ## events
