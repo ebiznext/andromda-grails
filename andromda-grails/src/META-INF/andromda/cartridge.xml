@@ -170,6 +170,11 @@
             <modelElement variable="services">
                 <type name="org.andromda.cartridges.grails.metafacades.GrailsService"/>
             </modelElement>
+            <modelElement variable="entities">
+                <type name="org.andromda.cartridges.hibernate.metafacades.HibernateEntity">
+                    <property name="requiresMapping"/>
+                </type>
+            </modelElement>
         </modelElements>
     </template>
 
