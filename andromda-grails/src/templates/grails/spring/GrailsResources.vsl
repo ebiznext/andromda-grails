@@ -81,10 +81,10 @@ ${indent}}
 #end
 
 #foreach($entity in $entities)
-${indent}$stringUtils.uncapitalize($stringUtils.trimToEmpty(${entity.entityName}))Renderer(Jsonrenderer, #if($stringUtils.isNotBlank($entity.packageName))${entity.packageName}.#end${entity.entityName}){
+${indent}$stringUtils.uncapitalize($stringUtils.trimToEmpty(${entity.entityName}))Renderer(JsonRenderer, #if($stringUtils.isNotBlank($entity.packageName))${entity.packageName}.#end${entity.entityName}){
 ${indent}${indent}excludes = ['class']
 ${indent}}
-${indent}$stringUtils.uncapitalize($stringUtils.trimToEmpty(${entity.entityName}))CollectionRenderer(JsonCollectionrenderer, #if($stringUtils.isNotBlank($entity.packageName))${entity.packageName}.#end${entity.entityName}){
+${indent}$stringUtils.uncapitalize($stringUtils.trimToEmpty(${entity.entityName}))CollectionRenderer(JsonCollectionRenderer, #if($stringUtils.isNotBlank($entity.packageName))${entity.packageName}.#end${entity.entityName}){
 ${indent}${indent}excludes = ['class']
 ${indent}}
 #end
